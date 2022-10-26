@@ -12,8 +12,6 @@ def checkToken(token):
   # check the token passed and return the username authenticated if the token is valid, otherwise return False
   for usr, tok in db["tokens"].value.items():
     # if the token is valid, return the username
-    print(usr, tok)
-    print(token)
     if tok == token:
       
       return usr
@@ -63,16 +61,18 @@ def listpage(page):
       "description": lvl["description"],
       "author": lvl["author"],
     }
-  lvls.append(obj)
+    lvls.append(obj)
 
   stuff = []
-  pagelength = 24
+  pagelength = 4
 
   for i in lvls[pagelength * (int(page) - 1):pagelength * (int(page))]:
     stuff.append(i)
 
-  return json.dumps(stuff)
-
+  if stuff.__len__() == 0:
+    return 'No results'
+  else:
+    return json.dumps(stuff)
 
 @app.route('/lvl/<id>')
 def getlvl(id):
@@ -86,19 +86,14 @@ def getlvl(id):
 
 @app.route('/add', methods=["POST"])
 def addlvl():
-  print("start")
-  print(request.form)
   lvl = request.form.get("lvl")
-  print(lvl)
   try:
     id = db["lvls"][-1]["id"] + 1
   except:
     id = 0
   name = request.form.get("name")
   description = request.form.get("description")
-  print(description)
   token = request.form.get("token")
-  print(token)
   author = checkToken(token)
   
   if not author:
@@ -124,7 +119,6 @@ def signup():
   except:
     # hash password
     hashed = hashlib.sha224(bytes(password, "UTF-8")).hexdigest()
-    # hashed = bcrypt.hash(bytes(password, "UTF-8"))
     db["users"][username] = hashed
     return "success"
 
