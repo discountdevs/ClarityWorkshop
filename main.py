@@ -13,7 +13,6 @@ def checkToken(token):
   for usr, tok in db["tokens"].value.items():
     # if the token is valid, return the username
     if tok == token:
-      
       return usr
   return False
 
@@ -48,7 +47,7 @@ def list():
       "author": lvl["author"],
     }
     lvls.append(obj)
-  return str(lvls)
+  return json.dumps(lvls)
 
 
 @app.route('/list/<page>')
@@ -74,12 +73,31 @@ def listpage(page):
   else:
     return json.dumps(stuff)
 
+
 @app.route('/lvl/<id>')
 def getlvl(id):
   try:
     for i in db["lvls"].value:
-      if i["id"] == id:
+      if int(i["id"]) == int(id):
         return str(i["lvl"])
+    return "no such level"
+  except:
+    return "no such level"
+
+
+@app.route('/lvlmeta/<id>')
+def getlvlmeta(id):
+  try:
+    for i in db["lvls"].value:
+      if int(i["id"]) == int(id):
+        obj = {
+          "id": i["id"],
+          "name": i["name"],
+          "description": i["description"],
+          "author": i["author"],
+        }
+        return obj
+    return "no such level"
   except:
     return "no such level"
 
@@ -95,7 +113,7 @@ def addlvl():
   description = request.form.get("description")
   token = request.form.get("token")
   author = checkToken(token)
-  
+
   if not author:
     return "bad token"
 
